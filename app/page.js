@@ -1,6 +1,7 @@
 "use client"
 import Todo from "@/Components/Todo";
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from 'react-toastify';
   import 'react-toastify/dist/ReactToastify.css';
 
@@ -11,6 +12,17 @@ export default function Home() {
     description:""
   })
 
+  const [todoData,setTodoData] = useState([]);
+
+  const fetchTodos = async () =>{
+    const response = await axios("/api")
+    setTodoData(response.data.todos)
+  }
+
+  useEffect(()=>{
+    fetchTodos();
+  },[])
+
 
   const onChangeHandler = (e) =>{
     const name = e.target.name;
@@ -19,16 +31,45 @@ export default function Home() {
     console.log(formData);
   }
 
-  const onSubmitHandler = (e) =>{
+  const onSubmitHandler = async(e) =>{
     e.preventDefault();
     try {
       //api code
+      const response = await axios.post("/api",formData)
 
-
-      toast.success("Todo Added")
+      toast.success(response.data.message)
+      setFormData({
+        title: "",
+        description:""
+      })
+      await fetchTodos();
     } catch (error) {
       toast.error("Something went wrong")
     }
+  }
+
+  const deleteTodo = async (id) =>{
+       try {
+        const response = await axios.delete("/api",{
+          params:{
+            mongoId: id
+          }
+        })
+        toast.success(response.data.message)
+        fetchTodos();
+       } catch (error) {
+        toast.error("something went wrong")
+       }
+  }
+
+  const completeTodo = async (id) =>{
+    const response = await axios.put("/api",{},{
+      params:{
+        mongoId: id
+      }
+    })
+    toast.success(response.data.message);
+    fetchTodos()
   }
 
   return (
@@ -58,31 +99,31 @@ export default function Home() {
         </button>
       </form>
 
-      <div className="relative overflow-x-auto mx-auto w-[60%] mt-24">
+      <div className="relative overflow-x-auto mx-auto lg:w-[60%] mt-24 w-full">
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-1 md:px-6 md:py-4">
                 Id
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-1 md:px-6 md:py-4">
                 Title
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-1 md:px-6 md:py-4">
                 Description
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-1 md:px-6 md:py-4">
                 Status
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-1 md:px-6 md:py-4">
                 Action
               </th>
             </tr>
           </thead>
           <tbody>
-            <Todo />
-            <Todo />
-            <Todo />
+            {todoData.map((item,index)=>{
+              return <Todo key={index} id={index} title={item.title} description={item.description} complete={item.isCompleted} mongoId = {item._id} deleteTodo={deleteTodo} completeTodo={completeTodo} />
+            })}
           </tbody>
         </table>
       </div>
