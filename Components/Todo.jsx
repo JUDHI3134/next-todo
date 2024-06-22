@@ -12,10 +12,10 @@ const Todo = ({title, description, complete,id,deleteTodo,mongoId,completeTodo})
     <td className={`px-3 py-1 md:px-6 md:py-4 ${complete? "line-through": ""}`}>{title}</td>
     <td className={`px-3 py-1 md:px-6 md:py-4 ${complete? "line-through": ""}`}>{description}</td>
     <td className="px-3 py-1 md:px-6 md:py-4">{complete? "Completed": "Pending"}</td>
-    <td className="px-3 py-1 md:px-6 md:py-4 flex gap-2">
-    <button onClick={()=>deleteTodo(mongoId)} className='bg-red-500 text-white rounded-lg px-4 py-2'>Delete</button>
+    <td className="px-3 py-1 md:px-6 md:py-4 flex gap-2 font-bold">
+    <button onClick={()=>deleteTodo(mongoId)}>Delete</button>
     {complete? "" :
-    <button onClick={()=>completeTodo(mongoId)} className='bg-green-500 text-white rounded-lg px-4 py-2'>Done</button>}
+    <button onClick={()=>completeTodo(mongoId)} >Done</button>}
     </td>
   </tr>
   )
